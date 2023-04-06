@@ -9,7 +9,10 @@ public class Battlecruiser extends Ship {
 
         this.setSize(40);
         this.setPos(startingPosition.x, startingPosition.y);
+        this.setCenter(this.getPos().x + this.getSize(), this.getPos().y + this.getSize());
 
-        this.tryLoadImage("resources/images/tempMarker.png");
+        this.normalModel = tryLoadImage("resources/images/tempMarker.png");
+        this.damagedModel = tryLoadImage("resources/images/collision.png");
+        this.model = normalModel;
     }
 }
