@@ -58,8 +58,6 @@ public class GamePanel extends JPanel {
         input.put(KeyStroke.getKeyStroke('d'), ActionHandler.Action.TURN_RIGHT);
 
         actions.put(ActionHandler.Action.MOVE_FORWARD, new ActionHandler(player, ActionHandler.Action.MOVE_FORWARD));
-        actions.put(ActionHandler.Action.TURN_LEFT, new ActionHandler(player, ActionHandler.Action.TURN_LEFT));
-        actions.put(ActionHandler.Action.TURN_RIGHT, new ActionHandler(player, ActionHandler.Action.TURN_RIGHT));
     }
     private class GameMouseAdapter extends MouseAdapter {
         private final PlayerController player;
