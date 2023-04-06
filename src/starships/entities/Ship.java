@@ -1,11 +1,25 @@
 package starships.entities;
 
+import java.awt.image.BufferedImage;
+
 import static java.lang.Math.*;
 
 public abstract class Ship extends Entity implements IMovable {
     protected int forwardSpeed;
     protected int turningSpeed;
     protected int facing = 0;
+
+    protected BufferedImage damagedModel;
+    protected BufferedImage normalModel;
+
+    enum models {NORMAL, DAMAGED}
+
+    protected void changeModel(models newModel) {
+        switch(newModel) {
+            case NORMAL -> this.model = this.normalModel;
+            case DAMAGED -> this.model = this.damagedModel;
+        }
+    }
 
     @Override
     public int getFacing() {
@@ -40,5 +54,14 @@ public abstract class Ship extends Entity implements IMovable {
             case LEFT -> this.setFacing(this.getFacing() - turningSpeed);
             case RIGHT -> this.setFacing(this.getFacing() + turningSpeed);
         }
+    }
+
+    public void collide(MapObject m) {
+
+    }
+
+    public void collide(Ship s) {
+        this.changeModel(models.DAMAGED);
+        s.changeModel(models.DAMAGED);
     }
 }

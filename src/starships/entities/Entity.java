@@ -18,11 +18,11 @@ public abstract class Entity {
     public BufferedImage getModel() {return this.model;}
     public void setPos(int x, int y) {this.pos.setLocation(x, y);}
     protected void setCenter(int x, int y) {this.center.setLocation(x, y);}
-    protected void setSize(int newSize) {this.size = newSize;}
+    protected void setSize(int size) {this.size = size;}
 
-    protected void tryLoadImage(String path) {
+    protected BufferedImage tryLoadImage(String path) {
         try {
-            this.model = ImageIO.read(new File(path));
+            return ImageIO.read(new File(path));
         } catch (IOException e) {
             throw new RuntimeException("ERROR: Couldn't load image");
         }
