@@ -9,15 +9,15 @@ import static java.lang.Math.abs;
 import static java.lang.Math.pow;
 
 public class GameMap {
-    private final String name;
+    private final String name; //Currently unused, will wait until I'm doing menu
     private final int width;
     private final int height;
 
-    private PlayerController player;
-    private HashMap<MapObject, Point> mapObjectPositions = new HashMap<>();
-    private HashMap<Ship, Point> shipPositions = new HashMap<>();
+    private PlayerController player; //TODO - potentially add multiplayer
+    private final HashMap<MapObject, Point> mapObjectPositions = new HashMap<>();
+    private final HashMap<Ship, Point> shipPositions = new HashMap<>();
 
-    public String getName() {return this.name;}
+    public String getName() {return this.name;} //Currently unused
     public int getWidth() {return this.width;}
     public int getHeight() {return this.height;}
 
@@ -46,7 +46,7 @@ public class GameMap {
         this.height = mapHeight;
     }
 
-    public void checkCollisions() {
+    public void checkCollisions() { //extremely unoptimized, TODO - optimize collisions, not yet sure how
         for (Ship s : shipPositions.keySet()) {
             for (MapObject m : mapObjectPositions.keySet()) {
                 if(calculateDistance(s, m) <= calculateCollisionDistance(s, m)) {
@@ -63,7 +63,7 @@ public class GameMap {
         }
     }
 
-    public void checkOutOfBounds() {
+    public void checkOutOfBounds() { //TODO - better OoB handling than "teleport to center"
         for (Ship s : shipPositions.keySet()) {
             if(s.getCenter().getX() < 0 || s.getCenter().getY() < 0 || s.getCenter().getX() > this.getWidth() || s.getCenter().getY() > this.getHeight()) {
                 s.setPos(this.width / 2, this.height / 2);
@@ -71,10 +71,10 @@ public class GameMap {
         }
     }
 
-    public int calculateCollisionDistance(Entity e1, Entity e2) {
+    public int calculateCollisionDistance(Entity e1, Entity e2) { //sum of hitbox radii, cubed to avoid sqrt
         return (int) (pow((e1.getSize() + e2.getSize()), 2));
     }
-    public int calculateDistance(Entity e1, Entity e2) {
+    public int calculateDistance(Entity e1, Entity e2) { //no sqrt to try to improve performance, comparing to cubed hitbox instead
         return (int) (pow(abs(e1.getCenter().getX() - e2.getCenter().getX()), 2) + pow(abs(e1.getCenter().getY() - e2.getCenter().getY()), 2));
     }
 }

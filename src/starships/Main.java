@@ -27,7 +27,8 @@ public class Main {
             public void run() {
                 map.checkOutOfBounds();
                 map.checkCollisions();
+                map.getPlayer().performActions();
                 gameWindow.repaint();
-            }}, 1000, 33);
+            }}, 1000, 33); //around 30 ticks per second assuming it doesn't slow down
     }
 }

@@ -6,6 +6,7 @@ import starships.entities.Ship;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.geom.AffineTransform;
@@ -49,17 +50,25 @@ public class GamePanel extends JPanel {
         this.setupKeybindings(this, player);
     }
 
-    private void setupKeybindings(GamePanel panel, PlayerController player) { //TODO - handle multiple keys
+    private void setupKeybindings(GamePanel panel, PlayerController player) {
         InputMap input = panel.getInputMap(WHEN_FOCUSED);
         ActionMap actions = panel.getActionMap();
-
-        input.put(KeyStroke.getKeyStroke('w'), ActionHandler.Action.MOVE_FORWARD);
-        input.put(KeyStroke.getKeyStroke('a'), ActionHandler.Action.TURN_LEFT);
-        input.put(KeyStroke.getKeyStroke('d'), ActionHandler.Action.TURN_RIGHT);
-
+        //keybindings for start actions
+        input.put(KeyStroke.getKeyStroke(KeyEvent.VK_W, 0, false), ActionHandler.Action.MOVE_FORWARD);
+        input.put(KeyStroke.getKeyStroke(KeyEvent.VK_A, 0, false), ActionHandler.Action.TURN_LEFT);
+        input.put(KeyStroke.getKeyStroke(KeyEvent.VK_D, 0, false), ActionHandler.Action.TURN_RIGHT);
+        //keybindings for stop actions
+        input.put(KeyStroke.getKeyStroke(KeyEvent.VK_W, 0, true), ActionHandler.Action.STOP_MOVE_FORWARD);
+        input.put(KeyStroke.getKeyStroke(KeyEvent.VK_A, 0, true), ActionHandler.Action.STOP_TURN_LEFT);
+        input.put(KeyStroke.getKeyStroke(KeyEvent.VK_D, 0, true), ActionHandler.Action.STOP_TURN_RIGHT);
+        //start actions themselves
         actions.put(ActionHandler.Action.MOVE_FORWARD, new ActionHandler(player, ActionHandler.Action.MOVE_FORWARD));
         actions.put(ActionHandler.Action.TURN_LEFT, new ActionHandler(player, ActionHandler.Action.TURN_LEFT));
         actions.put(ActionHandler.Action.TURN_RIGHT, new ActionHandler(player, ActionHandler.Action.TURN_RIGHT));
+        //stop actions themselves
+        actions.put(ActionHandler.Action.STOP_MOVE_FORWARD, new ActionHandler(player, ActionHandler.Action.STOP_MOVE_FORWARD));
+        actions.put(ActionHandler.Action.STOP_TURN_LEFT, new ActionHandler(player, ActionHandler.Action.STOP_TURN_LEFT));
+        actions.put(ActionHandler.Action.STOP_TURN_RIGHT, new ActionHandler(player, ActionHandler.Action.STOP_TURN_RIGHT));
     }
     private class GameMouseAdapter extends MouseAdapter {
         private final PlayerController player;
