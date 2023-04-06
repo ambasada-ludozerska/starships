@@ -32,8 +32,6 @@ public abstract class Ship extends Entity implements IMovable {
                 this.getPos().getLocation().y - (int) (this.forwardSpeed * cos(Math.toRadians(this.getFacing())))
         );
         this.setCenter(this.getPos().x + this.getSize(), this.getPos().y + this.getSize());
-        System.out.println("Current pos: x=" + this.getPos().x + "; y=" + this.getPos().y);
-        System.out.println("Current center: x=" + this.getCenter().x + "; y=" + this.getCenter().y);
     }
 
     @Override

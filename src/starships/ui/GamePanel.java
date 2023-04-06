@@ -10,7 +10,7 @@ import java.awt.event.MouseEvent;
 import java.awt.geom.AffineTransform;
 
 public class GamePanel extends JPanel {
-    private PlayerController player;
+    private final PlayerController player;
 
     @Override
     public void paintComponent(Graphics g) {
@@ -37,28 +37,52 @@ public class GamePanel extends JPanel {
         this.player = player;
         this.setBackground(Color.white);
         this.setSize(800, 600);
-        this.addKeyListener(new GameKeyAdapter(player));
+        this.addKeyListener(new GameKeyAdapter());
         this.addMouseListener(new GameMouseAdapter(player));
         this.setFocusable(true);
         this.setVisible(true);
+        this.setupKeybindings(this, player);
+    }
+
+    private void setupKeybindings(GamePanel panel, PlayerController player) {
+        InputMap input = panel.getInputMap(WHEN_FOCUSED);
+        ActionMap actions = panel.getActionMap();
+
+        input.put(KeyStroke.getKeyStroke('w'), ActionHandler.Action.MOVE_FORWARD);
+        input.put(KeyStroke.getKeyStroke('a'), ActionHandler.Action.TURN_LEFT);
+        input.put(KeyStroke.getKeyStroke('d'), ActionHandler.Action.TURN_RIGHT);
+
+        actions.put(ActionHandler.Action.MOVE_FORWARD, new ActionHandler(player, ActionHandler.Action.MOVE_FORWARD));
+        actions.put(ActionHandler.Action.TURN_LEFT, new ActionHandler(player, ActionHandler.Action.TURN_LEFT));
+        actions.put(ActionHandler.Action.TURN_RIGHT, new ActionHandler(player, ActionHandler.Action.TURN_RIGHT));
     }
 
     private class GameKeyAdapter extends KeyAdapter {
-        private PlayerController player;
+        //private PlayerController player;
+
+        //Set<Integer> keys = new HashSet<Integer>();
         @Override
         public void keyPressed(KeyEvent e) {
             super.keyPressed(e);
-            char key = e.getKeyChar();
-            player.selectAction(key);
-            System.out.println("Key pressed: " + key);
+            /*keys.add(e.getKeyCode());
+            for (Integer key : keys) {
+                System.out.println(key);
+                player.selectAction(key);
+            }*/
             repaint();
         }
 
-        public GameKeyAdapter(PlayerController player) {this.player = player;}
+       /* @Override
+        public void keyReleased(KeyEvent e) {
+            super.keyReleased(e);
+            keys.remove(e.getKeyCode());
+        }*/
+
+       // public GameKeyAdapter(PlayerController player) {this.player = player;}
     }
 
     private class GameMouseAdapter extends MouseAdapter {
-        private PlayerController player;
+        private final PlayerController player;
 
         @Override
         public void mouseClicked(MouseEvent e) {

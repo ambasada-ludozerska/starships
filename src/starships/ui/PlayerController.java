@@ -17,11 +17,18 @@ public class PlayerController {
         this.playerShip = ship;
     }
 
-    public void selectAction(char key) {
-        switch (key) {
-            case 'a' -> getPlayerShip().turn(LEFT);
-            case 'd' -> getPlayerShip().turn(RIGHT);
-            case 'w' -> getPlayerShip().moveForward();
+    /*public void selectAction(int keycode) {
+        switch (keycode) { //codes: 87 - w, 65 - a, 68 - d
+            case 65 -> getPlayerShip().turn(LEFT);
+            case 68 -> getPlayerShip().turn(RIGHT);
+            case 87 -> getPlayerShip().moveForward();
+        }
+    }*/
+    public void selectAction(ActionHandler.Action action) {
+        switch(action) {
+            case MOVE_FORWARD -> getPlayerShip().moveForward();
+            case TURN_LEFT -> getPlayerShip().turn(LEFT);
+            case TURN_RIGHT -> getPlayerShip().turn(RIGHT);
         }
     }
     public void selectAction(Point location, int button) { //buttons: 1 - LMB, 2 - Scroll, 3 - RMB
