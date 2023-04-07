@@ -2,6 +2,7 @@ package starships.ui;
 
 
 import starships.entities.GameMap;
+import starships.entities.Projectile;
 import starships.entities.Ship;
 
 import javax.swing.*;
@@ -29,13 +30,17 @@ public class GamePanel extends JPanel {
             g2.setTransform(at);
             g2.drawImage(
                     s.getModel(),
-                    s.getPos().x,
-                    s.getPos().y,
+                    (int) s.getPos().getX(),
+                    (int) s.getPos().getY(),
                     this
             );
         }
+        for (Projectile p : map.getActiveProjectiles()) {
+            g.drawOval((int) p.getPos().getX(), (int) p.getPos().getY(), p.getSize(), p.getSize());
+        }
         
         g.drawString("Facing: " + player.getPlayerShip().getFacing(), 20, 20);
+        g.drawString("Hull integrity: " + player.getPlayerShip().getRemainingHullIntegrity(), 100, 20);
         g2.dispose();
     }
 
@@ -70,16 +75,15 @@ public class GamePanel extends JPanel {
         actions.put(ActionHandler.Action.STOP_TURN_LEFT, new ActionHandler(player, ActionHandler.Action.STOP_TURN_LEFT));
         actions.put(ActionHandler.Action.STOP_TURN_RIGHT, new ActionHandler(player, ActionHandler.Action.STOP_TURN_RIGHT));
     }
-    private class GameMouseAdapter extends MouseAdapter {
+    private static class GameMouseAdapter extends MouseAdapter {
         private final PlayerController player;
 
         @Override
-        public void mouseClicked(MouseEvent e) { //TODO - mouse targeting
+        public void mousePressed(MouseEvent e) {
             super.mouseClicked(e);
             Point clickPos = e.getLocationOnScreen();
-            int button = e.getButton();
+            int button = e.getButton(); //currently unused, will change when I get to different weapons
             player.selectAction(clickPos, button);
-            repaint();
         }
 
         public GameMouseAdapter(PlayerController player) {this.player = player;}

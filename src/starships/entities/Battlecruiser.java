@@ -9,9 +9,12 @@ public class Battlecruiser extends Ship {
 
         this.setSize(40); //actual model is 2 times bigger, this is the hitbox radius
         this.setPos(startingPosition.x, startingPosition.y);
-        this.setCenter(this.getPos().x + this.getSize(), this.getPos().y + this.getSize()); //maybe I should rename center to pos and pos to imagePos, it's starting to be confusing
+        this.setCenter((int) (this.getPos().getX() + this.getSize()), (int) (this.getPos().getY() + this.getSize())); //maybe I should rename center to pos and pos to imagePos, it's starting to be confusing
 
-        this.normalModel = tryLoadImage("resources/images/tempMarker.png"); //set up all the model states
+        this.setStartingHullIntegrity(3000);
+        this.setHullIntegrity(getStartingHullIntegrity());
+
+        this.normalModel = tryLoadImage("resources/images/battlecruiser.png"); //set up all the model states
         this.damagedModel = tryLoadImage("resources/images/collision.png");
         this.model = normalModel; //by default, start undamaged
     }

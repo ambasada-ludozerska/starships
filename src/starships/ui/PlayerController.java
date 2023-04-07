@@ -5,6 +5,8 @@ import starships.entities.Ship;
 import java.awt.*;
 import java.util.HashMap;
 
+import static java.lang.Math.abs;
+import static java.lang.Math.atan2;
 import static starships.entities.IMovable.turningDirections.LEFT;
 import static starships.entities.IMovable.turningDirections.RIGHT;
 
@@ -31,16 +33,21 @@ public class PlayerController {
         }
     }
     public void performActions() { //goes through all the actions and performs them every time it is called (every tick)
-        for (ActionHandler.Action a : activeActions.keySet()) {
-            switch(a) {
-                case MOVE_FORWARD -> getPlayerShip().moveForward();
-                case TURN_LEFT -> getPlayerShip().turn(LEFT);
-                case TURN_RIGHT -> getPlayerShip().turn(RIGHT);
+        if(getPlayerShip().isOperational()) {
+            for (ActionHandler.Action a : activeActions.keySet()) {
+                switch (a) {
+                    case MOVE_FORWARD -> getPlayerShip().moveForward();
+                    case TURN_LEFT -> getPlayerShip().turn(LEFT);
+                    case TURN_RIGHT -> getPlayerShip().turn(RIGHT);
+                }
             }
         }
     }
     public void selectAction(Point location, int button) { //buttons: 1 - LMB, 2 - Scroll, 3 - RMB
         System.out.println("Clicked location: " + location + ", button: " + button);
+        int angleToTarget = (int) abs(Math.toDegrees(atan2(location.getX() - getPlayerShip().getCenter().getX(), location.getY() - getPlayerShip().getCenter().getY())) - 180.0);
+        System.out.println(angleToTarget);
+        getPlayerShip().fire(angleToTarget);
     }
 
     public PlayerController(Ship ship) {

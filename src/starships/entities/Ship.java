@@ -1,6 +1,7 @@
 package starships.entities;
 
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
 
 import static java.lang.Math.*;
 
@@ -8,6 +9,12 @@ public abstract class Ship extends Entity implements IMovable {
     protected int forwardSpeed; //pixels per tick, sum of the separate X and Y changes
     protected int turningSpeed; //degrees per tick, to get degrees per second multiply by 30
     protected int facing = 0; //in degrees, value range: 0 - 359, might change coordinate system to double for higher precision?
+
+    protected int currentHullIntegrity;
+    protected int startingHullIntegrity;
+    protected boolean isOperational = true;
+
+    protected ArrayList<Projectile> launchedProjectiles = new ArrayList<>();
 
     protected BufferedImage damagedModel; //currently not really showing damage, just notifies of a collision
     protected BufferedImage normalModel; //that's how it should look out of the box
@@ -21,6 +28,33 @@ public abstract class Ship extends Entity implements IMovable {
         }
     }
 
+    public int getRemainingHullIntegrity() {
+        return this.currentHullIntegrity;
+    }
+    protected void setHullIntegrity(int newHullIntegrity) {
+        this.currentHullIntegrity = Math.max(newHullIntegrity, 0);
+    }
+    public int getStartingHullIntegrity() {
+        return this.startingHullIntegrity;
+    }
+    protected void setStartingHullIntegrity(int startingHullIntegrity) {
+        if(startingHullIntegrity > 0) {
+            this.startingHullIntegrity = startingHullIntegrity;
+        } else {
+            this.startingHullIntegrity = 1;
+        }
+    }
+    public boolean isOperational() {
+        return this.isOperational;
+    }
+
+    public ArrayList<Projectile> getLaunchedProjectiles() {
+        return this.launchedProjectiles;
+    }
+    public void wipeStoredProjectiles() {
+        this.launchedProjectiles.clear();
+    }
+
     @Override
     public int getFacing() { //self-explanatory
         return this.facing;
@@ -28,9 +62,9 @@ public abstract class Ship extends Entity implements IMovable {
 
     @Override
     public void setFacing(int newFacing) { //probably overcomplicated but it works so I'll just leave it
-        if(newFacing < 0) {
+        if (newFacing < 0) { //what it actually does is make sure facing is always between 0 and 359 to avoid negative angles or whatever
             this.facing = newFacing + 360;
-        } else if(newFacing > 360) {
+        } else if (newFacing > 360) {
             this.facing = newFacing - 360;
         } else if (newFacing == 360) {
             this.facing = 0;
@@ -42,26 +76,45 @@ public abstract class Ship extends Entity implements IMovable {
     @Override
     public void moveForward() { //assumes facing 0 is straight up
         this.setPos(
-                this.getPos().getLocation().x + (int) (this.forwardSpeed * sin(Math.toRadians(this.getFacing()))),
-                this.getPos().getLocation().y - (int) (this.forwardSpeed * cos(Math.toRadians(this.getFacing())))
+                (int) (this.getPos().getLocation().getX() +  this.forwardSpeed * sin(Math.toRadians(this.getFacing()))),
+                (int) (this.getPos().getLocation().getY() - this.forwardSpeed * cos(Math.toRadians(this.getFacing())))
         );
-        this.setCenter(this.getPos().x + this.getSize(), this.getPos().y + this.getSize()); //sync actual pos and image corner
+        this.setCenter((int) (this.getPos().getX() + this.getSize()), (int) (this.getPos().getY() + this.getSize())); //sync actual pos and image corner
     }
 
     @Override
     public void turn(turningDirections direction) { //should be self-explanatory
-        switch(direction) {
+        switch (direction) {
             case LEFT -> this.setFacing(this.getFacing() - turningSpeed);
             case RIGHT -> this.setFacing(this.getFacing() + turningSpeed);
         }
     }
 
     public void collide(MapObject m) { //handling collisions with static objects, affects only the ship
-
+        this.takeDamage(30);
     }
 
     public void collide(Ship s) { //handling collisions with other ships, affects both ships
-        this.changeModel(models.DAMAGED);
-        s.changeModel(models.DAMAGED);
+            this.takeDamage(30);
+            s.takeDamage(30);
+    }
+
+    protected void takeDamage(int damage) {
+        this.setHullIntegrity(getRemainingHullIntegrity() - damage);
+        if (getRemainingHullIntegrity() <= startingHullIntegrity * 0.75) {
+            this.changeModel(models.DAMAGED); //visual representation of damage
+        }
+        if (getRemainingHullIntegrity() == 0) {
+            this.destroy();
+        }
+    }
+
+    protected void destroy() {
+        this.isOperational = false;
+        this.size = 0;
+    }
+
+    public void fire(int angleToTarget) { //TODO - Primary fire, Secondary fire, cooldown (through equipment)
+        this.launchedProjectiles.add(new Projectile(this.getCenter(), angleToTarget, 10, 5, 60, 100));
     }
 }

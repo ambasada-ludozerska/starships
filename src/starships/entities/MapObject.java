@@ -9,9 +9,10 @@ public class MapObject extends Entity {
         return this.name;
     }
 
-    public MapObject(String name, Point pos, String modelPath) {
+    public MapObject(String name, Point pos, int size, String modelPath) {
         this.name = name;
         this.pos = pos;
-        this.tryLoadImage(modelPath);
+        this.size = size;
+        this.model = tryLoadImage(modelPath);
     }
 }
