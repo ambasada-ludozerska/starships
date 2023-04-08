@@ -14,10 +14,12 @@ public class Main {
     public static void main(String[] args) {
         GameMap map = new GameMap("default", 1000, 1000);
         Battlecruiser npc = new Battlecruiser(new Point(600, 600));
+        Battlecruiser npc2 = new Battlecruiser(new Point(400, 100)); //for some reason rotation is bugged with only two ships, third needed until I figure out what's causing it
         Battlecruiser battlecruiser = new Battlecruiser(new Point(100, 300));
         PlayerController player = new PlayerController(battlecruiser);
         map.addShip(battlecruiser);
         map.addShip(npc);
+        map.addShip(npc2);
         map.addPlayer(player);
         GameWindow gameWindow = new GameWindow(map);
 

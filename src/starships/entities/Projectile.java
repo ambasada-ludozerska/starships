@@ -26,7 +26,7 @@ public class Projectile extends Ship {
         this.destroy();
     }
 
-    public Projectile(Point origin, int facing, int speed, int size, int lifetime, int damage) {
+    public Projectile(Point origin, double facing, int speed, int size, int lifetime, int damage) {
         this.forwardSpeed = speed;
 
         this.size = size;

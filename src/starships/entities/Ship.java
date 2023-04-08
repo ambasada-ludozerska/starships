@@ -7,12 +7,15 @@ import static java.lang.Math.*;
 
 public abstract class Ship extends Entity implements IMovable {
     protected int forwardSpeed; //pixels per tick, sum of the separate X and Y changes
-    protected int turningSpeed; //degrees per tick, to get degrees per second multiply by 30
-    protected int facing = 0; //in degrees, value range: 0 - 359, might change coordinate system to double for higher precision?
+    protected double turningSpeed; //degrees per tick, to get degrees per second multiply by 30
+    protected double facing = 0; //in degrees, value range: 0 - 359, might change coordinate system to double for higher precision?
 
     protected int currentHullIntegrity;
     protected int startingHullIntegrity;
     protected boolean isOperational = true;
+
+    protected Weapon primaryWeapon;
+    protected Weapon secondaryWeapon;
 
     protected ArrayList<Projectile> launchedProjectiles = new ArrayList<>();
 
@@ -56,12 +59,12 @@ public abstract class Ship extends Entity implements IMovable {
     }
 
     @Override
-    public int getFacing() { //self-explanatory
+    public double getFacing() { //self-explanatory
         return this.facing;
     }
 
     @Override
-    public void setFacing(int newFacing) { //probably overcomplicated but it works so I'll just leave it
+    public void setFacing(double newFacing) { //probably overcomplicated but it works so I'll just leave it
         if (newFacing < 0) { //what it actually does is make sure facing is always between 0 and 359 to avoid negative angles or whatever
             this.facing = newFacing + 360;
         } else if (newFacing > 360) {
@@ -88,15 +91,19 @@ public abstract class Ship extends Entity implements IMovable {
             case LEFT -> this.setFacing(this.getFacing() - turningSpeed);
             case RIGHT -> this.setFacing(this.getFacing() + turningSpeed);
         }
+        this.primaryWeapon.weaponFacing = this.getFacing();
+        this.primaryWeapon.updateFiringArc();
+        this.secondaryWeapon.weaponFacing = this.getFacing();
+        this.secondaryWeapon.updateFiringArc();
     }
 
     public void collide(MapObject m) { //handling collisions with static objects, affects only the ship
-        this.takeDamage(30);
+        this.takeDamage(300);
     }
 
     public void collide(Ship s) { //handling collisions with other ships, affects both ships
-            this.takeDamage(30);
-            s.takeDamage(30);
+            this.takeDamage(300);
+            s.takeDamage(300);
     }
 
     protected void takeDamage(int damage) {
@@ -114,7 +121,21 @@ public abstract class Ship extends Entity implements IMovable {
         this.size = 0;
     }
 
-    public void fire(int angleToTarget) { //TODO - Primary fire, Secondary fire, cooldown (through equipment)
-        this.launchedProjectiles.add(new Projectile(this.getCenter(), angleToTarget, 10, 5, 60, 100));
+    public void fire(int angleToTarget, int weapon) { //TODO - cooldown (through equipment)
+        switch(weapon) {
+            case 1 -> {
+                if(primaryWeapon.isTargetInFiringArc(angleToTarget)) {
+                    this.launchedProjectiles.add(primaryWeapon.fire(this.getCenter(), angleToTarget));
+                    System.out.println("PEW");
+                }
+            }
+            case 3 -> {
+                System.out.println(secondaryWeapon.maxArcLeft + ", " + secondaryWeapon.maxArcRight);
+                if(secondaryWeapon.isTargetInFiringArc(angleToTarget)) {
+                    this.launchedProjectiles.add(secondaryWeapon.fire(this.getCenter(), angleToTarget));
+                    System.out.println("pew");
+                }
+            }
+        }
     }
 }
