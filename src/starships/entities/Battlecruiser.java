@@ -1,5 +1,8 @@
 package starships.entities;
 
+import starships.equipment.Autocannon;
+import starships.equipment.HeavyCannon;
+
 import java.awt.*;
 
 public class Battlecruiser extends Ship {
@@ -14,9 +17,9 @@ public class Battlecruiser extends Ship {
         this.setStartingHullIntegrity(3000);
         this.setHullIntegrity(getStartingHullIntegrity());
 
-        this.primaryWeapon = new Weapon(this.getFacing(), 90, 10, 45, 5, 200);
+        this.primaryWeapon = new HeavyCannon(this.getFacing());   //Weapon(this.getFacing(), 90, 10, 45, 5, 200, 30);
         this.primaryWeapon.updateFiringArc();
-        this.secondaryWeapon = new Weapon(this.getFacing(), 120,20, 15, 2, 40);
+        this.secondaryWeapon = new Autocannon(this.getFacing());
         this.secondaryWeapon.updateFiringArc();
 
         this.normalModel = tryLoadImage("resources/images/battlecruiser.png"); //set up all the model states

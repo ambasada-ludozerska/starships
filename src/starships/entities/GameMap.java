@@ -1,5 +1,6 @@
 package starships.entities;
 
+import starships.equipment.Weapon;
 import starships.ui.PlayerController;
 
 import java.awt.*;
@@ -30,10 +31,10 @@ public class GameMap {
 
 
     public void addMapObject(MapObject mapObject) {
-        mapObjectPositions.put(mapObject, mapObject.getPos());
+        mapObjectPositions.put(mapObject, mapObject.getCenter());
     }
     public void addShip(Ship ship) {
-        shipPositions.put(ship, ship.getPos());
+        shipPositions.put(ship, ship.getCenter());
     }
     public void spawnProjectiles(ArrayList<Projectile> projectiles) {
         activeProjectiles.addAll(projectiles);
@@ -62,6 +63,9 @@ public class GameMap {
         for (Ship s : getAllShips().keySet()) {
             spawnProjectiles(s.getLaunchedProjectiles()); //register all the projectiles generated since last tick
             s.wipeStoredProjectiles(); //clear up the queue so it doesn't generate an infinite amount of projectiles and explode
+            for (Weapon w : s.getWeapons()) {
+                w.reduceCooldown();
+            }
         }
         for(Iterator<Projectile> i = activeProjectiles.iterator(); i.hasNext();) {
             Projectile p = i.next();

@@ -1,5 +1,7 @@
 package starships.entities;
 
+import starships.equipment.Weapon;
+
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
@@ -51,6 +53,12 @@ public abstract class Ship extends Entity implements IMovable {
         return this.isOperational;
     }
 
+    public ArrayList<Weapon> getWeapons() {
+        ArrayList<Weapon> weapons = new ArrayList<>();
+        weapons.add(primaryWeapon);
+        weapons.add(secondaryWeapon);
+        return weapons;
+    }
     public ArrayList<Projectile> getLaunchedProjectiles() {
         return this.launchedProjectiles;
     }
@@ -91,19 +99,19 @@ public abstract class Ship extends Entity implements IMovable {
             case LEFT -> this.setFacing(this.getFacing() - turningSpeed);
             case RIGHT -> this.setFacing(this.getFacing() + turningSpeed);
         }
-        this.primaryWeapon.weaponFacing = this.getFacing();
+        this.primaryWeapon.setWeaponFacing(this.getFacing());
         this.primaryWeapon.updateFiringArc();
-        this.secondaryWeapon.weaponFacing = this.getFacing();
+        this.secondaryWeapon.setWeaponFacing(this.getFacing());
         this.secondaryWeapon.updateFiringArc();
     }
 
     public void collide(MapObject m) { //handling collisions with static objects, affects only the ship
-        this.takeDamage(300);
+        this.destroy();
     }
 
     public void collide(Ship s) { //handling collisions with other ships, affects both ships
-            this.takeDamage(300);
-            s.takeDamage(300);
+            this.destroy();
+            s.destroy();
     }
 
     protected void takeDamage(int damage) {
@@ -118,22 +126,25 @@ public abstract class Ship extends Entity implements IMovable {
 
     protected void destroy() {
         this.isOperational = false;
-        this.size = 0;
     }
 
     public void fire(int angleToTarget, int weapon) { //TODO - cooldown (through equipment)
         switch(weapon) {
             case 1 -> {
-                if(primaryWeapon.isTargetInFiringArc(angleToTarget)) {
-                    this.launchedProjectiles.add(primaryWeapon.fire(this.getCenter(), angleToTarget));
-                    System.out.println("PEW");
+                if(primaryWeapon.readyToFire()) {
+                    if (primaryWeapon.isTargetInFiringArc(angleToTarget)) {
+                        this.launchedProjectiles.add(primaryWeapon.fire(this.getCenter(), angleToTarget));
+                        System.out.println("PEW");
+                    }
                 }
             }
             case 3 -> {
-                System.out.println(secondaryWeapon.maxArcLeft + ", " + secondaryWeapon.maxArcRight);
-                if(secondaryWeapon.isTargetInFiringArc(angleToTarget)) {
-                    this.launchedProjectiles.add(secondaryWeapon.fire(this.getCenter(), angleToTarget));
-                    System.out.println("pew");
+                //System.out.println(secondaryWeapon.maxArcLeft + ", " + secondaryWeapon.maxArcRight);
+                if(secondaryWeapon.readyToFire()) {
+                    if (secondaryWeapon.isTargetInFiringArc(angleToTarget)) {
+                        this.launchedProjectiles.add(secondaryWeapon.fire(this.getCenter(), angleToTarget));
+                        System.out.println("pew");
+                    }
                 }
             }
         }

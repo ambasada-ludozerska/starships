@@ -11,6 +11,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.geom.AffineTransform;
+import java.util.Iterator;
 
 public class GamePanel extends JPanel {
     private final PlayerController player;
@@ -21,7 +22,8 @@ public class GamePanel extends JPanel {
         super.paintComponent(g);
         Graphics2D g2 = (Graphics2D) g.create();
         AffineTransform at = new AffineTransform();
-        for (Ship s : map.getAllShips().keySet()) {
+        for (Iterator<Ship> i = map.getAllShips().keySet().iterator(); i.hasNext();) {    //Ship s : map.getAllShips().keySet()
+            Ship s = i.next();
             at.rotate(
                     Math.toRadians(s.getFacing()),
                     s.getCenter().getX(),
