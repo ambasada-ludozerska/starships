@@ -125,10 +125,11 @@ public abstract class Ship extends Entity implements IMovable {
     }
 
     protected void destroy() {
+        this.currentHullIntegrity = 0;
         this.isOperational = false;
     }
 
-    public void fire(int angleToTarget, int weapon) { //TODO - cooldown (through equipment)
+    public void fire(double angleToTarget, int weapon) {
         switch(weapon) {
             case 1 -> {
                 if(primaryWeapon.readyToFire()) {
@@ -139,7 +140,6 @@ public abstract class Ship extends Entity implements IMovable {
                 }
             }
             case 3 -> {
-                //System.out.println(secondaryWeapon.maxArcLeft + ", " + secondaryWeapon.maxArcRight);
                 if(secondaryWeapon.readyToFire()) {
                     if (secondaryWeapon.isTargetInFiringArc(angleToTarget)) {
                         this.launchedProjectiles.add(secondaryWeapon.fire(this.getCenter(), angleToTarget));

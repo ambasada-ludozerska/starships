@@ -1,12 +1,15 @@
 package starships.ui;
 
+import starships.controllers.PlayerController;
+
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 
 public class ActionHandler extends AbstractAction {
-    enum Action {
+    public enum Action {
         MOVE_FORWARD, TURN_LEFT, TURN_RIGHT,
-        STOP_MOVE_FORWARD, STOP_TURN_LEFT, STOP_TURN_RIGHT
+        STOP_MOVE_FORWARD, STOP_TURN_LEFT, STOP_TURN_RIGHT,
+        FIRE_PRIMARY, FIRE_SECONDARY
     }
     private final Action action;
     private final PlayerController player;

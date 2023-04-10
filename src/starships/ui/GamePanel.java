@@ -1,6 +1,6 @@
 package starships.ui;
 
-
+import starships.controllers.PlayerController;
 import starships.entities.GameMap;
 import starships.entities.Projectile;
 import starships.entities.Ship;
@@ -10,8 +10,8 @@ import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseMotionListener;
 import java.awt.geom.AffineTransform;
-import java.util.Iterator;
 
 public class GamePanel extends JPanel {
     private final PlayerController player;
@@ -21,14 +21,15 @@ public class GamePanel extends JPanel {
     public void paintComponent(Graphics g) { //TODO - add drawing of static objects
         super.paintComponent(g);
         Graphics2D g2 = (Graphics2D) g.create();
-        AffineTransform at = new AffineTransform();
-        for (Iterator<Ship> i = map.getAllShips().keySet().iterator(); i.hasNext();) {    //Ship s : map.getAllShips().keySet()
-            Ship s = i.next();
+        for (Ship s : map.getAllShips().keySet()) {
+            AffineTransform at = new AffineTransform();
+            //System.out.println(s.getFacing() + "; " + s.getCenter().getX() + "; " + s.getCenter().getY());
             at.rotate(
                     Math.toRadians(s.getFacing()),
                     s.getCenter().getX(),
                     s.getCenter().getY()
             );
+            //System.out.println("Rotated");
             g2.setTransform(at);
             g2.drawImage(
                     s.getModel(),
@@ -36,22 +37,26 @@ public class GamePanel extends JPanel {
                     (int) s.getPos().getY(),
                     this
             );
+            //System.out.println("Drawn");
+            at.rotate(0, 0, 0);
+            g2.setTransform(at);
         }
         for (Projectile p : map.getActiveProjectiles()) {
             g.drawOval((int) p.getPos().getX(), (int) p.getPos().getY(), p.getSize(), p.getSize());
         }
         
-        g.drawString("Facing: " + player.getPlayerShip().getFacing(), 20, 20);
-        g.drawString("Hull integrity: " + player.getPlayerShip().getRemainingHullIntegrity(), 100, 20);
+        g.drawString("Facing: " + player.getShip().getFacing(), 20, 20);
+        g.drawString("Hull integrity: " + player.getShip().getRemainingHullIntegrity(), 100, 20);
         g2.dispose();
     }
 
     public GamePanel(GameMap map) {
         this.map = map;
-        this.player = map.getPlayer();
+        this.player = map.getLocalPlayer();
         this.setBackground(Color.white);
         this.setSize(1000, 800);
         this.addMouseListener(new GameMouseAdapter(player));
+        this.addMouseMotionListener((MouseMotionListener) this.getMouseListeners()[0]);
         this.setFocusable(true);
         this.setVisible(true);
         this.setupKeybindings(this, player);
@@ -68,6 +73,7 @@ public class GamePanel extends JPanel {
         input.put(KeyStroke.getKeyStroke(KeyEvent.VK_W, 0, true), ActionHandler.Action.STOP_MOVE_FORWARD);
         input.put(KeyStroke.getKeyStroke(KeyEvent.VK_A, 0, true), ActionHandler.Action.STOP_TURN_LEFT);
         input.put(KeyStroke.getKeyStroke(KeyEvent.VK_D, 0, true), ActionHandler.Action.STOP_TURN_RIGHT);
+
         //start actions themselves
         actions.put(ActionHandler.Action.MOVE_FORWARD, new ActionHandler(player, ActionHandler.Action.MOVE_FORWARD));
         actions.put(ActionHandler.Action.TURN_LEFT, new ActionHandler(player, ActionHandler.Action.TURN_LEFT));
@@ -81,11 +87,33 @@ public class GamePanel extends JPanel {
         private final PlayerController player;
 
         @Override
-        public void mousePressed(MouseEvent e) {
-            super.mouseClicked(e);
+        public void mouseDragged(MouseEvent e) {
+            super.mouseDragged(e);
             Point clickPos = e.getLocationOnScreen();
-            int button = e.getButton(); //currently unused, will change when I get to different weapons
-            player.selectAction(clickPos, button);
+            player.updateTargetPosition(clickPos);
+            int button = e.getButton();
+            player.selectAction(button, false);
+            //System.out.println("aaa");
+        }
+        @Override
+        public void mouseMoved(MouseEvent e) {
+            super.mouseMoved(e);
+            Point clickPos = e.getLocationOnScreen();
+            player.updateTargetPosition(clickPos);
+            //System.out.println("aaa");
+        }
+        @Override
+        public void mousePressed(MouseEvent e) {
+            super.mousePressed(e);
+            int button = e.getButton();
+            player.selectAction(button, false);
+            //System.out.println("bbb");
+        }
+        @Override
+        public void mouseReleased(MouseEvent e) {
+            super.mouseReleased(e);
+            int button = e.getButton();
+            player.selectAction(button, true);
         }
 
         public GameMouseAdapter(PlayerController player) {this.player = player;}

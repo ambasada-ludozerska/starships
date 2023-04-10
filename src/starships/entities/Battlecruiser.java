@@ -22,7 +22,7 @@ public class Battlecruiser extends Ship {
         this.secondaryWeapon = new Autocannon(this.getFacing());
         this.secondaryWeapon.updateFiringArc();
 
-        this.normalModel = tryLoadImage("resources/images/battlecruiser.png"); //set up all the model states
+        this.normalModel = tryLoadImage("resources/images/battlecruiser2.png"); //set up all the model states
         this.damagedModel = tryLoadImage("resources/images/collision.png");
         this.model = normalModel; //by default, start undamaged
     }

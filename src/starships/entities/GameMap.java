@@ -1,7 +1,9 @@
 package starships.entities;
 
+import starships.controllers.AIController;
+import starships.controllers.IController;
 import starships.equipment.Weapon;
-import starships.ui.PlayerController;
+import starships.controllers.PlayerController;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -16,38 +18,46 @@ public class GameMap {
     private final int width;
     private final int height;
 
-    private PlayerController player; //TODO - potentially add multiplayer
+    private PlayerController localPlayer; //TODO - potentially add multiplayer
+    private final ArrayList<AIController> AIs = new ArrayList<>();
     private final HashMap<MapObject, Point> mapObjectPositions = new HashMap<>();
-    private final HashMap<Ship, Point> shipPositions = new HashMap<>();
+    private final HashMap<Ship, IController> activeShips = new HashMap<>();
     private final ArrayList<Projectile> activeProjectiles = new ArrayList<>();
 
     public String getName() {return this.name;} //Currently unused
     public int getWidth() {return this.width;}
     public int getHeight() {return this.height;}
 
-    public PlayerController getPlayer() {
-        return this.player;
+    public PlayerController getLocalPlayer() {
+        return this.localPlayer;
     }
-
+    public void findAllAIs() {
+        for (IController c : activeShips.values()) {
+            if(c.getClass() == AIController.class) {
+                this.AIs.add((AIController) c);
+            }
+        }
+    }
 
     public void addMapObject(MapObject mapObject) {
         mapObjectPositions.put(mapObject, mapObject.getCenter());
     }
-    public void addShip(Ship ship) {
-        shipPositions.put(ship, ship.getCenter());
+    public void addShip(IController shipController) {
+        activeShips.put(shipController.getShip(), shipController);
     }
+    public void setLocalPlayer(PlayerController player) {
+        this.localPlayer = player;
+    }
+
     public void spawnProjectiles(ArrayList<Projectile> projectiles) {
         activeProjectiles.addAll(projectiles);
-    }
-    public void addPlayer(PlayerController player) {
-        this.player = player;
     }
 
     public HashMap<MapObject, Point> getStaticObjects() {
         return this.mapObjectPositions;
     }
-    public HashMap<Ship, Point> getAllShips() {
-        return this.shipPositions;
+    public HashMap<Ship, IController> getAllShips() {
+        return this.activeShips;
     }
     public  ArrayList<Projectile> getActiveProjectiles() {
         return this.activeProjectiles;
@@ -57,6 +67,13 @@ public class GameMap {
         this.name = mapName;
         this.width = mapWidth;
         this.height = mapHeight;
+    }
+
+    public void updateAIs() {
+        for (AIController ai : AIs) {
+            ai.planAction();
+            ai.performActions();
+        }
     }
 
     public void updateProjectiles() {
@@ -78,14 +95,14 @@ public class GameMap {
     }
 
     public void checkCollisions() { //extremely unoptimized, TODO - optimize collisions, not yet sure how
-        for(Iterator<Ship> i = shipPositions.keySet().iterator(); i.hasNext();) {
+        for(Iterator<Ship> i = activeShips.keySet().iterator(); i.hasNext();) {
             Ship s = i.next();
             for (MapObject m : mapObjectPositions.keySet()) {
                 if(calculateDistance(s, m) <= calculateCollisionDistance(s, m)) {
                     s.collide(m);
                 }
             }
-            for (Ship s2 : shipPositions.keySet()) {
+            for (Ship s2 : activeShips.keySet()) {
                 if(s != s2) {
                     if(calculateDistance(s, s2) <= calculateCollisionDistance(s, s2)) {
                         s.collide(s2); //TODO - prevent processing the same collision twice
@@ -104,7 +121,7 @@ public class GameMap {
     }
 
     public void checkOutOfBounds() { //TODO - better OoB handling than "just die", preferably forced return
-        for (Ship s : shipPositions.keySet()) {
+        for (Ship s : activeShips.keySet()) {
             if(s.getCenter().getX() < 0 || s.getCenter().getY() < 0 || s.getCenter().getX() > this.getWidth() || s.getCenter().getY() > this.getHeight()) {
                 s.takeDamage(10);
             }
