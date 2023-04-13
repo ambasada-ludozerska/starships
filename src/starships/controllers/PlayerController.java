@@ -1,6 +1,7 @@
 package starships.controllers;
 
 import starships.entities.Ship;
+import starships.equipment.Weapon;
 import starships.ui.ActionHandler;
 
 import java.awt.*;
@@ -12,11 +13,17 @@ import static starships.entities.IMovable.turningDirections.LEFT;
 import static starships.entities.IMovable.turningDirections.RIGHT;
 
 public class PlayerController implements IController {
+    private final int team;
     private Ship playerShip;
     private final HashMap<ActionHandler.Action, Boolean> activeActions = new HashMap<>(); //stores all actions that should be performed next tick
 
     private Point targetPos;
     double targetAngle;
+
+    @Override
+    public int getTeam() {
+        return this.team;
+    }
 
     @Override
     public Ship getShip() {
@@ -47,11 +54,11 @@ public class PlayerController implements IController {
                     case TURN_RIGHT -> getShip().turn(RIGHT);
                     case FIRE_PRIMARY -> {
                         targetAngle = calculateTargetAngle(targetPos);
-                        getShip().fire(targetAngle, 1);
+                        getShip().fire(targetAngle, Weapon.weaponType.PRIMARY);
                     }
                     case FIRE_SECONDARY -> {
                         targetAngle = calculateTargetAngle(targetPos);
-                        getShip().fire(targetAngle, 3);
+                        getShip().fire(targetAngle, Weapon.weaponType.SECONDARY);
                     }
                 }
             }
@@ -71,8 +78,9 @@ public class PlayerController implements IController {
         }
     }
 
-    public PlayerController(Ship ship) {
+    public PlayerController(Ship ship, int team) {
         this.setShip(ship);
+        this.team = team;
     }
 
     public void updateTargetPosition(Point targetPos) {

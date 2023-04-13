@@ -5,18 +5,25 @@ import starships.entities.Projectile;
 import java.awt.*;
 
 public class Weapon {
+    public enum weaponType {PRIMARY, SECONDARY}
+    protected weaponType type;
+
     protected double weaponFacing; //center of the firing arc
     protected double firingArc; //max rotation in each direction, full arc is 2 times larger
     protected double maxArcLeft;
     protected double maxArcRight;
 
     protected int projectileSpeed; //in pixels per tick
-    protected int projectileLife; //in ticks
+    protected int projectileLifetime; //in ticks
     protected int projectileSize; //in pixels
     protected int projectileDamage;
 
     protected int refire; //reload time in ticks, 30 ticks per second
     protected int cooldownRemaining; //in ticks
+
+    public weaponType getWeaponType() {
+        return this.type;
+    }
 
     public boolean readyToFire() {
         return cooldownRemaining <= 0;
@@ -60,9 +67,13 @@ public class Weapon {
             return false;
         }
     }
+    public int getWeaponRange() {
+        return projectileSpeed * projectileLifetime;
+    }
+
     public Projectile fire(Point origin, double angleToTarget) {
         cooldownRemaining = refire;
-        return new Projectile(origin, angleToTarget, projectileSpeed, projectileSize, projectileLife, projectileDamage);
+        return new Projectile(origin, angleToTarget, projectileSpeed, projectileSize, projectileLifetime, projectileDamage);
     }
 
     public Weapon(double facing, double firingArc, int pSpeed, int pLife, int pSize, int pDamage, int refire) {
@@ -72,7 +83,7 @@ public class Weapon {
         this.maxArcRight = weaponFacing + firingArc;
 
         this.projectileSpeed = pSpeed;
-        this.projectileLife = pLife;
+        this.projectileLifetime = pLife;
         this.projectileSize = pSize;
         this.projectileDamage = pDamage;
         this.refire = refire;

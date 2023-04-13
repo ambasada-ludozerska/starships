@@ -71,8 +71,30 @@ public class GameMap {
 
     public void updateAIs() {
         for (AIController ai : AIs) {
-            ai.planAction();
+            ai.planAction(findClosestEligibleTarget(ai.getShip()));
             ai.performActions();
+        }
+
+    }
+    public Ship findClosestEligibleTarget(Ship reference) {
+        double shortestDistance = getWidth();
+        double currentDistance;
+        Ship closest = null;
+        for (Ship s : activeShips.keySet()) {
+            if (s != reference) {
+                if (activeShips.get(s).getTeam() != activeShips.get(reference).getTeam() && s.isOperational()) {
+                    currentDistance = reference.getCenter().distance(s.getCenter());
+                    if (currentDistance < shortestDistance) {
+                        shortestDistance = currentDistance;
+                        closest = s;
+                    }
+                }
+            }
+        }
+        if(closest != null) {
+            return closest;
+        } else {
+            return reference;
         }
     }
 
@@ -95,28 +117,27 @@ public class GameMap {
     }
 
     public void checkCollisions() { //extremely unoptimized, TODO - optimize collisions, not yet sure how
-        for(Iterator<Ship> i = activeShips.keySet().iterator(); i.hasNext();) {
-            Ship s = i.next();
+        for (Ship s : activeShips.keySet()) {
             for (MapObject m : mapObjectPositions.keySet()) {
-                if(calculateDistance(s, m) <= calculateCollisionDistance(s, m)) {
+                if (calculateDistance(s, m) <= calculateCollisionDistance(s, m)) {
                     s.collide(m);
                 }
             }
             for (Ship s2 : activeShips.keySet()) {
-                if(s != s2) {
-                    if(calculateDistance(s, s2) <= calculateCollisionDistance(s, s2)) {
+                if (s != s2) {
+                    if (calculateDistance(s, s2) <= calculateCollisionDistance(s, s2)) {
                         s.collide(s2); //TODO - prevent processing the same collision twice
                     }
                 }
             }
             for (Projectile p : activeProjectiles) {
-                if(calculateDistance(s, p) <= calculateCollisionDistance(s, p) && p.getLifetime() - p.getTimeToLive() > p.getArmingDelay()) {
+                if (calculateDistance(s, p) <= calculateCollisionDistance(s, p) && p.getLifetime() - p.getTimeToLive() > p.getArmingDelay()) {
                     p.collide(s);
                 }
             }
-            if(!s.isOperational()) {
+            /*if(!s.isOperational()) {
                 i.remove(); //Hopefully kill wrecked ships. Probably not the best place for it, but let's just leave it here for now. TODO - track kills for score
-            }
+            }*/
         }
     }
 

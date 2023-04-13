@@ -7,6 +7,7 @@ import java.util.HashMap;
 
 public interface IController {
     HashMap<ActionHandler.Action, Boolean> activeActions = new HashMap<>();
+    int getTeam();
     Ship getShip();
     void setShip(Ship ship);
 

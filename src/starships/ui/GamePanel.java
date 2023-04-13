@@ -54,7 +54,7 @@ public class GamePanel extends JPanel {
         this.map = map;
         this.player = map.getLocalPlayer();
         this.setBackground(Color.white);
-        this.setSize(1000, 800);
+        this.setSize(1920, 1080);
         this.addMouseListener(new GameMouseAdapter(player));
         this.addMouseMotionListener((MouseMotionListener) this.getMouseListeners()[0]);
         this.setFocusable(true);

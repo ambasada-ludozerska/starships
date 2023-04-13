@@ -21,15 +21,19 @@ public abstract class Ship extends Entity implements IMovable {
 
     protected ArrayList<Projectile> launchedProjectiles = new ArrayList<>();
 
-    protected BufferedImage damagedModel; //currently not really showing damage, just notifies of a collision
     protected BufferedImage normalModel; //that's how it should look out of the box
+    protected BufferedImage damagedModel; //currently not really showing damage, just notifies of a collision
+    protected BufferedImage heavilyDamagedModel;
+    protected BufferedImage wreckedModel;
 
-    enum models {NORMAL, DAMAGED} //model states
+    enum models {NORMAL, DAMAGED, HEAVILY_DAMAGED, DESTROYED} //model states
 
     protected void changeModel(models newModel) { //switches between model states
         switch(newModel) {
             case NORMAL -> this.model = this.normalModel;
             case DAMAGED -> this.model = this.damagedModel;
+            case HEAVILY_DAMAGED -> this.model = this.heavilyDamagedModel;
+            case DESTROYED -> this.model = this.wreckedModel;
         }
     }
 
@@ -115,35 +119,38 @@ public abstract class Ship extends Entity implements IMovable {
     }
 
     protected void takeDamage(int damage) {
-        this.setHullIntegrity(getRemainingHullIntegrity() - damage);
-        if (getRemainingHullIntegrity() <= startingHullIntegrity * 0.75) {
-            this.changeModel(models.DAMAGED); //visual representation of damage
-        }
-        if (getRemainingHullIntegrity() == 0) {
-            this.destroy();
+        if(isOperational()) {
+            this.setHullIntegrity(getRemainingHullIntegrity() - damage);
+            if (getRemainingHullIntegrity() <= startingHullIntegrity * 0.75) {
+                this.changeModel(models.DAMAGED); //visual representation of damage
+            }
+            if (getRemainingHullIntegrity() <= startingHullIntegrity * 0.25) {
+                this.changeModel(models.HEAVILY_DAMAGED);
+            }
+            if (getRemainingHullIntegrity() == 0) {
+                this.destroy();
+            }
         }
     }
 
     protected void destroy() {
-        this.currentHullIntegrity = 0;
         this.isOperational = false;
+        this.changeModel(models.DESTROYED);
     }
 
-    public void fire(double angleToTarget, int weapon) {
+    public void fire(double angleToTarget, Weapon.weaponType weapon) {
         switch(weapon) {
-            case 1 -> {
+            case PRIMARY -> {
                 if(primaryWeapon.readyToFire()) {
                     if (primaryWeapon.isTargetInFiringArc(angleToTarget)) {
                         this.launchedProjectiles.add(primaryWeapon.fire(this.getCenter(), angleToTarget));
-                        System.out.println("PEW");
                     }
                 }
             }
-            case 3 -> {
+            case SECONDARY -> {
                 if(secondaryWeapon.readyToFire()) {
                     if (secondaryWeapon.isTargetInFiringArc(angleToTarget)) {
                         this.launchedProjectiles.add(secondaryWeapon.fire(this.getCenter(), angleToTarget));
-                        System.out.println("pew");
                     }
                 }
             }
