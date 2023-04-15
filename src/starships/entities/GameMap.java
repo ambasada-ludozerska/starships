@@ -10,9 +10,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 
-import static java.lang.Math.abs;
-import static java.lang.Math.pow;
-
 public class GameMap {
     private final String name; //Currently unused, will wait until I'm doing menu
     private final int width;
@@ -80,7 +77,7 @@ public class GameMap {
         double shortestDistance = getWidth();
         double currentDistance;
         Ship closest = null;
-        for (Ship s : activeShips.keySet()) {
+        for (Ship s : activeShips.keySet()) { //go through all ships, remembering the last closest one and updating it if better target is found
             if (s != reference) {
                 if (activeShips.get(s).getTeam() != activeShips.get(reference).getTeam() && s.isOperational()) {
                     currentDistance = reference.getCenter().distance(s.getCenter());
@@ -94,7 +91,7 @@ public class GameMap {
         if(closest != null) {
             return closest;
         } else {
-            return reference;
+            return reference; //safeguard against returning null if no valid targets exist, returns itself
         }
     }
 
@@ -119,25 +116,32 @@ public class GameMap {
     public void checkCollisions() { //extremely unoptimized, TODO - optimize collisions, not yet sure how
         for (Ship s : activeShips.keySet()) {
             for (MapObject m : mapObjectPositions.keySet()) {
-                if (calculateDistance(s, m) <= calculateCollisionDistance(s, m)) {
-                    s.collide(m);
+                if(calculateDistance(s, m) <= 225) {
+                    if(activeShips.get(s).getClass() == AIController.class) { //enable AI collision avoidance, player has free choice how and if to do it at all
+                        activeShips.get(s).onCollisionCourse(m);
+                    }
+                    if (calculateDistance(s, m) <= calculateCollisionDistance(s, m)) {
+                        s.collide(m);
+                    }
                 }
             }
             for (Ship s2 : activeShips.keySet()) {
                 if (s != s2) {
-                    if (calculateDistance(s, s2) <= calculateCollisionDistance(s, s2)) {
-                        s.collide(s2); //TODO - prevent processing the same collision twice
+                    if(calculateDistance(s, s2) <= 225) {
+                        if(activeShips.get(s).getClass() == AIController.class) { //again ,enable AI collision avoidance
+                            activeShips.get(s).onCollisionCourse(s2);
+                        }
+                        if (calculateDistance(s, s2) <= calculateCollisionDistance(s, s2)) {
+                            s.collide(s2); //TODO - prevent processing the same collision twice
+                        }
                     }
                 }
             }
             for (Projectile p : activeProjectiles) {
-                if (calculateDistance(s, p) <= calculateCollisionDistance(s, p) && p.getLifetime() - p.getTimeToLive() > p.getArmingDelay()) {
+                if ( p.getLifetime() - p.getTimeToLive() > p.getArmingDelay() && calculateDistance(s, p) <= calculateCollisionDistance(s, p)) {
                     p.collide(s);
                 }
             }
-            /*if(!s.isOperational()) {
-                i.remove(); //Hopefully kill wrecked ships. Probably not the best place for it, but let's just leave it here for now. TODO - track kills for score
-            }*/
         }
     }
 
@@ -149,10 +153,10 @@ public class GameMap {
         }
     }
 
-    public int calculateCollisionDistance(Entity e1, Entity e2) { //sum of hitbox radii, cubed to avoid sqrt
-        return (int) (pow((e1.getSize() + e2.getSize()), 2));
+    public int calculateCollisionDistance(Entity e1, Entity e2) {
+        return e1.getSize() + e2.getSize();
     }
     public int calculateDistance(Entity e1, Entity e2) { //no sqrt to try to improve performance, comparing to cubed hitbox instead
-        return (int) (pow(abs(e1.getCenter().getX() - e2.getCenter().getX()), 2) + pow(abs(e1.getCenter().getY() - e2.getCenter().getY()), 2));
+        return (int) e1.getCenter().distance(e2.getCenter());
     }
 }

@@ -1,5 +1,6 @@
 package starships.controllers;
 
+import starships.entities.Entity;
 import starships.entities.Ship;
 import starships.equipment.Weapon;
 import starships.ui.ActionHandler;
@@ -64,6 +65,12 @@ public class PlayerController implements IController {
             }
         }
     }
+
+    @Override
+    public void onCollisionCourse(Entity hazard) {
+        //maybe I'll add some visual warning in the future, for now I'm leaving it empty
+    }
+
     public void selectAction(int button, boolean released) { //buttons: 1 - LMB, 2 - Scroll, 3 - RMB
         if(!released) {
             switch (button) {
@@ -86,7 +93,7 @@ public class PlayerController implements IController {
     public void updateTargetPosition(Point targetPos) {
         this.targetPos = targetPos;
     }
-    public double calculateTargetAngle(Point targetPos) {
+    public double calculateTargetAngle(Point targetPos) { //returns angle from 0 to 360 degrees between Y axis and line drawn to the target spot
         double angle = Math.toDegrees(atan2(getShip().getCenter().getX() - targetPos.getX(), getShip().getCenter().getY() - targetPos.getY()));
         if(angle < 0) {
             return abs(angle);

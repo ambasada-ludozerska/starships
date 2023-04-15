@@ -21,15 +21,17 @@ public class GamePanel extends JPanel {
     public void paintComponent(Graphics g) { //TODO - add drawing of static objects
         super.paintComponent(g);
         Graphics2D g2 = (Graphics2D) g.create();
+        RenderingHints rh = new RenderingHints(
+                RenderingHints.KEY_TEXT_ANTIALIASING,
+                RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+        g2.setRenderingHints(rh);
         for (Ship s : map.getAllShips().keySet()) {
             AffineTransform at = new AffineTransform();
-            //System.out.println(s.getFacing() + "; " + s.getCenter().getX() + "; " + s.getCenter().getY());
             at.rotate(
                     Math.toRadians(s.getFacing()),
                     s.getCenter().getX(),
                     s.getCenter().getY()
             );
-            //System.out.println("Rotated");
             g2.setTransform(at);
             g2.drawImage(
                     s.getModel(),
@@ -37,7 +39,6 @@ public class GamePanel extends JPanel {
                     (int) s.getPos().getY(),
                     this
             );
-            //System.out.println("Drawn");
             at.rotate(0, 0, 0);
             g2.setTransform(at);
         }
@@ -93,21 +94,18 @@ public class GamePanel extends JPanel {
             player.updateTargetPosition(clickPos);
             int button = e.getButton();
             player.selectAction(button, false);
-            //System.out.println("aaa");
         }
         @Override
         public void mouseMoved(MouseEvent e) {
             super.mouseMoved(e);
             Point clickPos = e.getLocationOnScreen();
             player.updateTargetPosition(clickPos);
-            //System.out.println("aaa");
         }
         @Override
         public void mousePressed(MouseEvent e) {
             super.mousePressed(e);
             int button = e.getButton();
             player.selectAction(button, false);
-            //System.out.println("bbb");
         }
         @Override
         public void mouseReleased(MouseEvent e) {

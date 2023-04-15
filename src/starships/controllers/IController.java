@@ -1,5 +1,6 @@
 package starships.controllers;
 
+import starships.entities.Entity;
 import starships.entities.Ship;
 import starships.ui.ActionHandler;
 
@@ -23,4 +24,6 @@ public interface IController {
         }
     }
     void performActions();
+
+    void onCollisionCourse(Entity hazard);
 }
