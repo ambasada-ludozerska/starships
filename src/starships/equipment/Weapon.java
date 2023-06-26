@@ -1,6 +1,7 @@
 package starships.equipment;
 
 import starships.entities.Projectile;
+import starships.utility.Vector;
 
 import java.awt.*;
 
@@ -71,9 +72,9 @@ public class Weapon {
         return projectileSpeed * projectileLifetime;
     }
 
-    public Projectile fire(Point origin, double angleToTarget) {
+    public Projectile fire(Point origin, Vector velocity, double angleToTarget) {
         cooldownRemaining = refire;
-        return new Projectile(origin, angleToTarget, projectileSpeed, projectileSize, projectileLifetime, projectileDamage);
+        return new Projectile(origin, velocity, angleToTarget, projectileSpeed, projectileSize, projectileLifetime, projectileDamage);
     }
 
     public Weapon(double facing, double firingArc, int pSpeed, int pLife, int pSize, int pDamage, int refire) {

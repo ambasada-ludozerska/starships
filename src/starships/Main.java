@@ -38,9 +38,10 @@ public class Main {
         mainGameLoop.schedule(new TimerTask() {
             @Override
             public void run() {
-                map.updateProjectiles();
+                //map.updateProjectiles();
                 map.getLocalPlayer().performActions();
                 map.updateAIs();
+                map.updatePositions();
                 map.checkOutOfBounds();
                 map.checkCollisions();
                 gameWindow.repaint();

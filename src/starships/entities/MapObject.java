@@ -11,7 +11,7 @@ public class MapObject extends Entity {
 
     public MapObject(String name, Point pos, int size, String modelPath) {
         this.name = name;
-        this.pos = pos;
+        this.imgPos = pos;
         this.size = size;
         this.model = tryLoadImage(modelPath);
     }

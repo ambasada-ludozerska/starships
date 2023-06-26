@@ -13,22 +13,26 @@ import static starships.entities.IMovable.turningDirections.LEFT;
 import static starships.entities.IMovable.turningDirections.RIGHT;
 
 public class AIController implements IController {
+    //IFF
     private final int team;
-    private Ship ship;
-
     //for now always the closest non-friendly ship, static objects are currently indestructible and untargetable (and not fully implemented)
     private Ship target;
 
-    //stores all ships close enough to pose a collision hazard, not yet completely sure how effective this is with multiple ships though
+    //controlled ship
+    private Ship ship;
+
+
+    //stores all ships close enough to pose a collision hazard, not yet completely sure how effective this is with multiple ships though UPDATE: it's not.
     private final ArrayList<Entity> onCollisionCourseWith = new ArrayList<>();
 
     private final ArrayList<Weapon> weaponsInRange = new ArrayList<>(); //stores weapons that can effectively fire at the target
-    private final HashMap<ActionHandler.Action, Boolean> activeActions = new HashMap<>(); //stores all actions queued to be performed
+    private final HashMap<ActionHandler.Action, Boolean> activeActions = new HashMap<>(); //stores all actions queued to be performed, why is this even a hashmap instead of an array?
 
+    //IFF AND TARGETING
     @Override
     public int getTeam() {
         return this.team;
-    }
+    } //IFF
 
     @Override
     public Ship getShip() {
@@ -38,7 +42,7 @@ public class AIController implements IController {
     @Override
     public void setShip(Ship ship) {
         this.ship = ship;
-    }
+    } //setup, assign the AI to a ship on the map
 
     public void designateTarget(Ship target) { //self-explanatory
         if(target != this.getShip()) {
@@ -46,7 +50,7 @@ public class AIController implements IController {
         }
     }
     private double getAngleTo(Entity target) { //return an angle from 0 to 360 between the Y axis and the line drawn to target's center
-        double angle = Math.toDegrees(atan2(getShip().getCenter().getX() - target.getCenter().getX(), getShip().getCenter().getY() - target.getCenter().getY()));
+        double angle = Math.toDegrees(atan2(this.ship.getPos().getX() - target.getPos().getX(), this.ship.getPos().getY() - target.getPos().getY()));
         if(angle < 0) {
             return abs(angle);
         } else if (angle > 0) {
@@ -55,6 +59,8 @@ public class AIController implements IController {
             return angle;
         }
     }
+
+    //MOVEMENT
 
     private void intercept() { //turn to face target and move closer until in collision avoidance range
         double angle = getAngleTo(target);
@@ -75,6 +81,8 @@ public class AIController implements IController {
         }
         selectAction(ActionHandler.Action.MOVE_FORWARD);
     }
+
+    //COLLISION AVOIDANCE
     public void onCollisionCourse(Entity hazard) { //self-explanatory, exists to allow map's collision detection loop to interact with the AI
         onCollisionCourseWith.add(hazard);
     }
@@ -95,9 +103,11 @@ public class AIController implements IController {
         }
     }
 
+
+    //FIRING
     public void updateWeaponsInRange() { //check which weapons can fire at the target and have a chance of hitting
         for (Weapon w : getShip().getWeapons()) {
-            if(getShip().getCenter().distance(target.getCenter()) <= (double) w.getWeaponRange()) {
+            if(getShip().getPos().distance(target.getPos()) <= (double) w.getWeaponRange()) {
                 if(!weaponsInRange.contains(w)) {
                     weaponsInRange.add(w);
                 }
@@ -117,6 +127,8 @@ public class AIController implements IController {
         weaponsInRange.clear(); //but don't keep them firing unnecessarily when they get out of range
     }
 
+
+    //LOGIC
     public void selectAction(ActionHandler.Action action) { //not really necessary in the AI as the logic is being computed in planActions(), leftover from the interface
         activeActions.put(action, true);
     }
@@ -126,7 +138,7 @@ public class AIController implements IController {
         if(getShip().isOperational()) {
             for (ActionHandler.Action a : activeActions.keySet()) {
                 switch (a) {
-                    case MOVE_FORWARD -> getShip().moveForward();
+                    case MOVE_FORWARD -> getShip().accelerate();
                     case TURN_LEFT -> getShip().turn(LEFT);
                     case TURN_RIGHT -> getShip().turn(RIGHT);
                     case FIRE_PRIMARY -> getShip().fire(getAngleTo(target), Weapon.weaponType.PRIMARY);
@@ -154,6 +166,8 @@ public class AIController implements IController {
         }
     }
 
+
+    //CONSTRUCTOR
     public AIController(Ship ship, int team) {
         this.setShip(ship);
         this.team = team;

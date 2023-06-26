@@ -29,21 +29,21 @@ public class GamePanel extends JPanel {
             AffineTransform at = new AffineTransform();
             at.rotate(
                     Math.toRadians(s.getFacing()),
-                    s.getCenter().getX(),
-                    s.getCenter().getY()
+                    s.getPos().getX(),
+                    s.getPos().getY()
             );
             g2.setTransform(at);
             g2.drawImage(
                     s.getModel(),
-                    (int) s.getPos().getX(),
-                    (int) s.getPos().getY(),
+                    (int) s.getImgPos().getX(),
+                    (int) s.getImgPos().getY(),
                     this
             );
             at.rotate(0, 0, 0);
             g2.setTransform(at);
         }
         for (Projectile p : map.getActiveProjectiles()) {
-            g.drawOval((int) p.getPos().getX(), (int) p.getPos().getY(), p.getSize(), p.getSize());
+            g.drawOval((int) p.getImgPos().getX(), (int) p.getImgPos().getY(), p.getSize(), p.getSize());
         }
         
         g.drawString("Facing: " + player.getShip().getFacing(), 20, 20);

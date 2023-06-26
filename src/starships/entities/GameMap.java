@@ -12,12 +12,14 @@ import java.util.Iterator;
 
 public class GameMap {
     private final String name; //Currently unused, will wait until I'm doing menu
+
+    //MAP DIMENSIONS
     private final int width;
     private final int height;
 
     private PlayerController localPlayer; //TODO - potentially add multiplayer
     private final ArrayList<AIController> AIs = new ArrayList<>();
-    private final HashMap<MapObject, Point> mapObjectPositions = new HashMap<>();
+    private final HashMap<MapObject, Point> mapObjectPositions = new HashMap<>(); //Why is this a hashmap?
     private final HashMap<Ship, IController> activeShips = new HashMap<>();
     private final ArrayList<Projectile> activeProjectiles = new ArrayList<>();
 
@@ -25,6 +27,7 @@ public class GameMap {
     public int getWidth() {return this.width;}
     public int getHeight() {return this.height;}
 
+    //SETUP
     public PlayerController getLocalPlayer() {
         return this.localPlayer;
     }
@@ -37,7 +40,7 @@ public class GameMap {
     }
 
     public void addMapObject(MapObject mapObject) {
-        mapObjectPositions.put(mapObject, mapObject.getCenter());
+        mapObjectPositions.put(mapObject, mapObject.getPos());
     }
     public void addShip(IController shipController) {
         activeShips.put(shipController.getShip(), shipController);
@@ -46,6 +49,8 @@ public class GameMap {
         this.localPlayer = player;
     }
 
+
+    //GET ALL THE STUFF ON THE MAP
     public void spawnProjectiles(ArrayList<Projectile> projectiles) {
         activeProjectiles.addAll(projectiles);
     }
@@ -60,12 +65,7 @@ public class GameMap {
         return this.activeProjectiles;
     }
 
-    public GameMap(String mapName, int mapWidth, int mapHeight) {
-        this.name = mapName;
-        this.width = mapWidth;
-        this.height = mapHeight;
-    }
-
+    //ENABLING AI
     public void updateAIs() {
         for (AIController ai : AIs) {
             ai.planAction(findClosestEligibleTarget(ai.getShip()));
@@ -80,7 +80,7 @@ public class GameMap {
         for (Ship s : activeShips.keySet()) { //go through all ships, remembering the last closest one and updating it if better target is found
             if (s != reference) {
                 if (activeShips.get(s).getTeam() != activeShips.get(reference).getTeam() && s.isOperational()) {
-                    currentDistance = reference.getCenter().distance(s.getCenter());
+                    currentDistance = reference.getPos().distance(s.getPos());
                     if (currentDistance < shortestDistance) {
                         shortestDistance = currentDistance;
                         closest = s;
@@ -95,22 +95,34 @@ public class GameMap {
         }
     }
 
-    public void updateProjectiles() {
+
+    //POSITION TRACKING
+    public void updatePositions() {
         for (Ship s : getAllShips().keySet()) {
             spawnProjectiles(s.getLaunchedProjectiles()); //register all the projectiles generated since last tick
             s.wipeStoredProjectiles(); //clear up the queue so it doesn't generate an infinite amount of projectiles and explode
             for (Weapon w : s.getWeapons()) {
                 w.reduceCooldown();
             }
+            s.move();
         }
         for(Iterator<Projectile> i = activeProjectiles.iterator(); i.hasNext();) {
             Projectile p = i.next();
             if(p.getTimeToLive() <= 0 || !p.isOperational()) { //hopefully kill expired and successful projectiles
                 i.remove();
             }
-            p.moveForward();
+            p.move();
             p.ttl--; //track lifetime of every projectile
         }
+    }
+
+    //COLLISION TRACKING
+
+    public int calculateCollisionDistance(Entity e1, Entity e2) {
+        return e1.getSize() + e2.getSize();
+    }
+    public int calculateDistance(Entity e1, Entity e2) { //no sqrt to try to improve performance, comparing to cubed hitbox instead
+        return (int) e1.getPos().distance(e2.getPos());
     }
 
     public void checkCollisions() { //extremely unoptimized, TODO - optimize collisions, not yet sure how
@@ -147,16 +159,18 @@ public class GameMap {
 
     public void checkOutOfBounds() { //TODO - better OoB handling than "just die", preferably forced return
         for (Ship s : activeShips.keySet()) {
-            if(s.getCenter().getX() < 0 || s.getCenter().getY() < 0 || s.getCenter().getX() > this.getWidth() || s.getCenter().getY() > this.getHeight()) {
+            if(s.getPos().getX() < 0 || s.getPos().getY() < 0 || s.getPos().getX() > this.getWidth() || s.getPos().getY() > this.getHeight()) {
                 s.takeDamage(10);
             }
         }
     }
 
-    public int calculateCollisionDistance(Entity e1, Entity e2) {
-        return e1.getSize() + e2.getSize();
+
+    //CONSTRUCTOR
+    public GameMap(String mapName, int mapWidth, int mapHeight) {
+        this.name = mapName;
+        this.width = mapWidth;
+        this.height = mapHeight;
     }
-    public int calculateDistance(Entity e1, Entity e2) { //no sqrt to try to improve performance, comparing to cubed hitbox instead
-        return (int) e1.getCenter().distance(e2.getCenter());
-    }
+
 }

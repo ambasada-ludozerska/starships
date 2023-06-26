@@ -5,6 +5,6 @@ public interface IMovable {
 
     double getFacing();
     void setFacing(double newFacing);
-    void moveForward();
+    void move();
      void turn(turningDirections direction);
 }
