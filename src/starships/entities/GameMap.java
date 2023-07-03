@@ -94,6 +94,14 @@ public class GameMap {
         }
     }
 
+    public boolean isTeamAlive(int teamID) {
+        for (Ship s : getAllShips().keySet()) {
+            if(s.isOperational() && getAllShips().get(s).getTeam() == teamID) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     //POSITION TRACKING
     public void updatePositions() {
