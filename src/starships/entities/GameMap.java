@@ -5,7 +5,6 @@ import starships.controllers.IController;
 import starships.equipment.Weapon;
 import starships.controllers.PlayerController;
 
-import java.awt.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -19,7 +18,7 @@ public class GameMap {
 
     private PlayerController localPlayer; //TODO - potentially add multiplayer
     private final ArrayList<AIController> AIs = new ArrayList<>();
-    private final HashMap<MapObject, Point> mapObjectPositions = new HashMap<>(); //Why is this a hashmap?
+    private final ArrayList<MapObject> mapObjectPositions = new ArrayList<>(); //Why is this a hashmap?
     private final HashMap<Ship, IController> activeShips = new HashMap<>();
     private final ArrayList<Projectile> activeProjectiles = new ArrayList<>();
 
@@ -40,7 +39,7 @@ public class GameMap {
     }
 
     public void addMapObject(MapObject mapObject) {
-        mapObjectPositions.put(mapObject, mapObject.getPos());
+        mapObjectPositions.add(mapObject);
     }
     public void addShip(IController shipController) {
         activeShips.put(shipController.getShip(), shipController);
@@ -55,7 +54,7 @@ public class GameMap {
         activeProjectiles.addAll(projectiles);
     }
 
-    public HashMap<MapObject, Point> getStaticObjects() {
+    public ArrayList<MapObject> getStaticObjects() {
         return this.mapObjectPositions;
     }
     public HashMap<Ship, IController> getAllShips() {
@@ -127,7 +126,7 @@ public class GameMap {
 
     public void checkCollisions() { //extremely unoptimized, TODO - optimize collisions, not yet sure how
         for (Ship s : activeShips.keySet()) {
-            for (MapObject m : mapObjectPositions.keySet()) {
+            for (MapObject m : mapObjectPositions) {
                 if(calculateDistance(s, m) <= 225) {
                     if(activeShips.get(s).getClass() == AIController.class) { //enable AI collision avoidance, player has free choice how and if to do it at all
                         activeShips.get(s).onCollisionCourse(m);

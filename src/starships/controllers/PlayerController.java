@@ -116,8 +116,8 @@ public class PlayerController implements IController {
 
 
     //CONSTRUCTOR
-    public PlayerController(Ship ship, int team) {
-        this.setShip(ship);
+    public PlayerController(int team) {
+        //this.setShip(ship);
         this.team = team;
     }
 }

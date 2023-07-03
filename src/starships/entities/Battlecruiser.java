@@ -8,7 +8,7 @@ import java.awt.*;
 
 public class Battlecruiser extends Ship {
     public Battlecruiser(Point startingPosition, double initialFacing) {
-        this.forwardAcceleration = 0.02;
+        this.forwardAcceleration = 0.05;
         this.turningSpeed = 2;
         this.velocity = new Vector();
 

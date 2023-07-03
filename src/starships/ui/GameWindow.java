@@ -1,16 +1,18 @@
 package starships.ui;
 
-import starships.entities.GameMap;
-
 import javax.swing.*;
+import java.awt.*;
 
 public class GameWindow extends JFrame {
 
 
-    public GameWindow(GameMap map) {
-        //this.setSize(1920, 1080);
+    public GameWindow() {
         this.setDefaultCloseOperation(EXIT_ON_CLOSE);
-        this.add(new GamePanel(map));
+        CardLayout layout = new CardLayout();
+        this.setLayout(layout);
+        SetupPanel setup = new SetupPanel();
+        this.add(setup);
+        setup.init();
         this.setExtendedState(MAXIMIZED_BOTH);
         this.setUndecorated(false);
         this.setVisible(true);
